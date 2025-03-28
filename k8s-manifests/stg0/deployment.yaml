@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory
+  labels:
+    tags.datadoghq.com/env: stg
+    tags.datadoghq.com/version: "0.40.6"
+spec:
+  template:
+    metadata:
+      labels:
+        tags.datadoghq.com/env: stg
+        tags.datadoghq.com/version: "0.40.6"
+    spec:
+      containers:
+        - name: inventory
+          resources:
+            requests:
+              cpu: "100m"
+          env:
+            - name: ENV
+              value: stg
+            - name: SPRING_PROFILES_ACTIVE
+              value: stg

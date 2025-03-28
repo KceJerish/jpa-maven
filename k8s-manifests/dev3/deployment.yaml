@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jpa-app
+  labels:
+    tags.datadoghq.com/env: dev
+    tags.datadoghq.com/version: "0.40.6"
+spec:
+  template:
+    metadata:
+      labels:
+        tags.datadoghq.com/env: dev
+        tags.datadoghq.com/version: "0.40.6"
+    spec:
+      containers:
+        - name: jpa-app
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "712Mi"
+            limits:
+              memory: "712Mi"
+          env:
+            - name: ENV
+              value: dev
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev

@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-jpa-app-endpoint
+data: {}
+# FieldExport will get the rds endpoint and generate key:value data
+#
+# data:
+#   default.export-db-endpoint: jpa-app-{ENV}-aue1-api-2kctp.XXXXX.rds.amazonaws.com
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-jpa-app-endpoint
+data: {}
+# FieldExport will get the rds endpoint and generate key:value data
+#
+# data:
+#   default.export-db-endpoint: ecom-jpa-app-dev2.XXXXX.cache.amazonaws.com

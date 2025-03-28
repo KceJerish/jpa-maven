@@ -1,0 +1,129 @@
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBClusterParameterGroup
+metadata:
+  name: jpa-app
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  name: jpa-app-env-aurora-postgresql14-cluster
+  description: "jpa-app aurora-postgresql14 cluster parameter group"
+  family: aurora-postgresql14
+  parameterOverrides: {}
+  tags:
+    - key: service
+      value: commerce-jpa-app
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBParameterGroup
+metadata:
+  name: jpa-app
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  name: jpa-app-env-aurora-postgresql14
+  description: "jpa-app aurora-postgresql14 parameter group"
+  family: aurora-postgresql14
+  parameterOverrides: {}
+  tags:
+    - key: service
+      value: commerce-jpa-app
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBCluster
+metadata:
+  name: inventory
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  dbClusterIdentifier: inventory-env-aue2-api-2kctp
+  databaseName: inventory
+  engine: aurora-postgresql
+  engineVersion: "14.9"
+  autoMinorVersionUpgrade: false
+  serverlessV2ScalingConfiguration:
+    minCapacity: 0.5
+    maxCapacity: 2
+  dbClusterParameterGroupRef:
+    from:
+      name: inventory
+  kmsKeyID: arn:aws:kms:us-east-2:000000000000:key/00000000-0000-0000-0000-000000000000
+  dbSubnetGroupName: env
+  networkType: IPV4
+  availabilityZones:
+    - us-east-2b
+    - us-east-2c
+  masterUsername: inventoryenvuser
+  storageEncrypted: true
+  vpcSecurityGroupIDs:
+    - sg-xxxxxxxxxxxxxxxxx
+  backupRetentionPeriod: 3
+  preferredMaintenanceWindow: mon:04:00-mon:05:00
+  deletionProtection: true
+  tags:
+    - key: service
+      value: commerce-inventory
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: inventory-01
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  dbInstanceIdentifier: inventory-env-aue2-api-2kctp-01
+  dbClusterIdentifier: inventory-env-aue2-api-2kctp
+  dbInstanceClass: db.serverless
+  engine: aurora-postgresql
+  engineVersion: "14.9"
+  autoMinorVersionUpgrade: false
+  performanceInsightsEnabled: true
+  performanceInsightsRetentionPeriod: 7
+  dbParameterGroupRef:
+    from:
+      name: inventory
+  tags:
+    - key: service
+      value: commerce-inventory
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: inventory-02
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  dbInstanceIdentifier: inventory-env-aue2-api-2kctp-02
+  dbClusterIdentifier: inventory-env-aue2-api-2kctp
+  dbInstanceClass: db.serverless
+  engine: aurora-postgresql
+  engineVersion: "14.9"
+  autoMinorVersionUpgrade: false
+  performanceInsightsEnabled: true
+  performanceInsightsRetentionPeriod: 7
+  dbParameterGroupRef:
+    from:
+      name: inventory
+  tags:
+    - key: service
+      value: commerce-inventory
+
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: db-inventory-endpoint
+spec:
+  to:
+    name: db-inventory-endpoint
+    kind: configmap
+  from:
+    path: ".status.endpoint"
+    resource:
+      group: rds.services.k8s.aws
+      kind: DBCluster
+      name: inventory

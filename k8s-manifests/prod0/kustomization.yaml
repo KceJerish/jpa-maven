@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+
+resources:
+- ../base
+
+images:
+- name: inventory
+  newName: 471112764585.dkr.ecr.us-east-2.amazonaws.com/inventory-service
+  newTag: 0.39.6-f1e44f0-master-497
+
+labels:
+- includeSelectors: true
+  pairs:
+    app: inventory
+
+patches:
+- path: ack-rds.yaml
+- path: ack-redis.yaml
+- path: deployment.yaml
+- path: external-secret.yaml
+- path: ingress.yaml
+- path: hpa.yaml

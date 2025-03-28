@@ -1,0 +1,47 @@
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBClusterParameterGroup
+metadata:
+  name: jpa-app
+spec:
+  name: jpa-app-dev0-aurora-postgresql14-cluster
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBParameterGroup
+metadata:
+  name: jpa-app
+spec:
+  name: jpa-app-dev0-aurora-postgresql14
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBCluster
+metadata:
+  name: jpa-app
+  annotations:
+    services.k8s.aws/deletion-policy: delete
+spec:
+  dbClusterIdentifier: jpa-app-dev0-aue2-api-2kctp
+  dbSubnetGroupName: dev0-private
+  deletionProtection: false
+  kmsKeyID: arn:aws:kms:us-east-2:992382609411:key/848cdd7b-0a74-436a-a15a-7893c9fc278e
+  masterUsername: jpa-appdevuser
+  masterUserPassword:
+    key: DB_PASS
+    name: jpa-app
+    namespace: default
+  serverlessV2ScalingConfiguration:
+    minCapacity: 0.5
+    maxCapacity: 2
+  vpcSecurityGroupIDs:
+    - sg-0ea230628521b5942
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: jpa-app-01
+  annotations:
+    services.k8s.aws/deletion-policy: delete
+spec:
+  dbClusterIdentifier: jpa-app-dev0-aue2-api-2kctp
+  dbInstanceIdentifier: jpa-app-dev0-aue2-api-2kctp-01
+  dbInstanceClass: db.serverless

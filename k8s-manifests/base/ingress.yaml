@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jpa-app
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
+    alb.ingress.kubernetes.io/healthcheck-port: "8089"
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=false, access_logs.s3.enabled=true, access_logs.s3.bucket=ctp-access-logs-env-ue2, access_logs.s3.prefix=jpa-app
+    alb.ingress.kubernetes.io/tags: service=commerce-jpa-app
+    external-dns.alpha.kubernetes.io/ingress-hostname-source: annotation-only
+    external-dns.alpha.kubernetes.io/hostname: jpa-app.env.2kct.onl
+spec:
+  rules:
+    - host: host
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: jpa-app
+                port:
+                  name: http

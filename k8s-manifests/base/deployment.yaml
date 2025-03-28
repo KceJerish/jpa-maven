@@ -1,0 +1,149 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jpa-app
+  labels:
+    tags.datadoghq.com/service: commerce-jpa-app
+    tags.datadoghq.com/env: env
+    tags.datadoghq.com/version: version
+    tags.datadoghq.com/vertical: commerce
+spec:
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8089"
+        prometheus.io/path: /actuator/prometheus
+        admission.datadoghq.com/java-lib.version: "latest"
+      labels:
+        tags.datadoghq.com/service: commerce-jpa-app
+        tags.datadoghq.com/env: env
+        tags.datadoghq.com/version: version
+        tags.datadoghq.com/vertical: commerce
+        admission.datadoghq.com/enabled: "true"
+    spec:
+      terminationGracePeriodSeconds: 130
+      containers:
+        - name: jpa-app
+          imagePullPolicy: IfNotPresent
+          image: inventory
+          resources:
+            requests:
+              cpu: "2"
+              memory: "2Gi"
+            limits:
+              memory: "2Gi"
+          env:
+            - name: ENV
+              value: env
+            - name: SPRING_PROFILES_ACTIVE
+              value: env
+            - name: RDS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-inventory-endpoint
+                  key: default.db-inventory-endpoint
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: DB_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: DB_PASS
+            - name: KAFKA_PRODUCER_CLIENTID
+              value: "inventory_internal"
+            - name: KAFKA_PRODUCER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: KAFKA_PRODUCER_KEY
+            - name: KAFKA_PRODUCER_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: KAFKA_PRODUCER_SECRET
+            - name: CHARGEBACK_SEN_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: CHARGEBACK_SEN_CLIENTSECRET
+            - name: CHARGEBACK_ZENDESK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: inventory
+                  key: CHARGEBACK_ZENDESK_TOKEN
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:aws-wrapper:postgresql://$(RDS_HOST):5432/inventory?reWriteBatchedInserts=true"
+            - name: ELASTICACHE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: redis-inventory-endpoint
+                  key: default.redis-inventory-endpoint
+            - name: REDIS_URL
+              value: "$(ELASTICACHE_HOST):6379"
+            - name: TRACER.SERVICENAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: TRACER.SERVICEVERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: SERVICE_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.version=$(SERVICE_VERSION)
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: PAGINATION_DEFAULTLIMIT
+              value: "100"
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: management
+              containerPort: 8089
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: management
+            initialDelaySeconds: 40
+            periodSeconds: 12
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: management
+            initialDelaySeconds: 90
+            periodSeconds: 12
+            timeoutSeconds: 5
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sleep", "30" ]
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 25%

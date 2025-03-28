@@ -1,0 +1,55 @@
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBClusterParameterGroup
+metadata:
+  name: jpa-app
+spec:
+  name: jpa-app-dev3-aurora-postgresql14-cluster
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBParameterGroup
+metadata:
+  name: jpa-app
+spec:
+  name: jpa-app-dev3-aurora-postgresql14
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBCluster
+metadata:
+  name: jpa-app
+spec:
+  dbClusterIdentifier: jpa-app-dev3-aue2-api-2kctp
+  masterUsername: jpa-appdevuser
+  serverlessV2ScalingConfiguration:
+    minCapacity: 0.5
+    maxCapacity: 2
+  masterUserPassword:
+    key: DB_PASS
+    name: jpa-app
+    namespace: default
+  kmsKeyID: arn:aws:kms:us-east-2:028072000508:key/6008bb28-056c-49a4-b300-671010ae4b86
+  dbSubnetGroupName: dev3
+  vpcSecurityGroupIDs:
+    - sg-05dcdc5d3cf05e745
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: jpa-app-01
+spec:
+  dbInstanceIdentifier: jpa-app-dev3-aue2-api-2kctp-01
+  dbClusterIdentifier: inventory-dev3-aue2-api-2kctp
+  dbInstanceClass: db.serverless
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: inventory-02
+spec:
+  dbInstanceIdentifier: inventory-dev3-aue2-api-2kctp-02
+  dbClusterIdentifier: inventory-dev3-aue2-api-2kctp
+  dbInstanceClass: db.serverless

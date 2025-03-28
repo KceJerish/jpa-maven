@@ -1,0 +1,36 @@
+---
+apiVersion: elasticache.services.k8s.aws/v1alpha1
+kind: ReplicationGroup
+metadata:
+  name: jpa-app
+  annotations:
+    services.k8s.aws/deletion-policy: retain
+spec:
+  description: ecom-jpa-app-redis
+  engine: redis
+  cacheNodeType: cache.t4g.micro
+  cacheParameterGroupName: default.redis7
+  snapshotRetentionLimit: 35
+  tags:
+    - key: service
+      value: commerce-jpa-app
+  # MultiAZ config
+  automaticFailoverEnabled: true
+  multiAZEnabled: true
+  replicasPerNodeGroup: 1
+
+---
+apiVersion: services.k8s.aws/v1alpha1
+kind: FieldExport
+metadata:
+  name: redis-jpa-app-endpoint
+spec:
+  to:
+    name: redis-jpa-app-endpoint
+    kind: configmap
+  from:
+    path: ".status.nodeGroups[].primaryEndpoint.address"
+    resource:
+      group: elasticache.services.k8s.aws
+      kind: ReplicationGroup
+      name: jpa-app

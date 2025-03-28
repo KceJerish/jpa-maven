@@ -1,0 +1,15 @@
+---
+apiVersion: elasticache.services.k8s.aws/v1alpha1
+kind: ReplicationGroup
+metadata:
+  name: jpa-app
+spec:
+  cacheSubnetGroupName: dev3-private
+  replicationGroupID: ecom-jpa-app-dev3
+  snapshotRetentionLimit: 0
+  securityGroupIDs:
+    - sg-020f2e41ccc5571de
+  # disable MultiAZ config
+  automaticFailoverEnabled: false
+  multiAZEnabled: false
+  replicasPerNodeGroup: 0

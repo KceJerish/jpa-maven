@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: inventory
+  annotations:
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:us-east-2:471112764585:regional/webacl/commerce-inventory-prod/403f419b-b87a-40e3-8818-f5a9e2667c33
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=false, access_logs.s3.enabled=true, access_logs.s3.bucket=ctp-access-logs-ue2, access_logs.s3.prefix=inventory
+    external-dns.alpha.kubernetes.io/hostname: inventory.prod0-commerce.2kct.onl
+spec:
+  rules:
+    - host: inventory.api.2kcoretech.online
+      http: &backend
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: inventory
+                port:
+                  name: http
+    - host: inventory-api.2kcoretech.online
+      http: *backend

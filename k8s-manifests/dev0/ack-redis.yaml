@@ -1,0 +1,17 @@
+---
+apiVersion: elasticache.services.k8s.aws/v1alpha1
+kind: ReplicationGroup
+metadata:
+  name: jpa-app
+spec:
+  automaticFailoverEnabled: false
+  cacheSubnetGroupName: dev0-private
+  description: "ecom-jpa-app-redis for dev0"
+  engine: redis
+  engineVersion: "7.1"
+  multiAZEnabled: false
+  replicasPerNodeGroup: 0
+  replicationGroupID: ecom-jpa-app-dev0
+  snapshotRetentionLimit: 0
+  securityGroupIDs:
+    - sg-0fc3b68d8774115af

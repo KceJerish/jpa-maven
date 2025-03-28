@@ -1,0 +1,11 @@
+---
+apiVersion: elasticache.services.k8s.aws/v1alpha1
+kind: ReplicationGroup
+metadata:
+  name: inventory
+spec:
+  cacheSubnetGroupName: stg0-private
+  snapshotRetentionLimit: 0
+  replicationGroupID: ecom-inventory-stg0
+  securityGroupIDs:
+    - sg-0863b01b759d9ab51

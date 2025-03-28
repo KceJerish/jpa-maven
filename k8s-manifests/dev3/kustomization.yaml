@@ -1,0 +1,33 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+
+resources:
+- ../base
+- configmap.yaml
+
+images:
+- name: jpa-app
+  newName: 028072000508.dkr.ecr.us-east-2.amazonaws.com/jpa-app-service
+  newTag: 0.40.6-e4af020-master-555
+
+labels:
+- includeSelectors: true
+  pairs:
+    app: inventory
+
+patches:
+- path: ack-rds.yaml
+- path: ack-redis.yaml
+- path: deployment.yaml
+- path: external-secret.yaml
+- path: ingress.yaml
+- path: pdb.yaml
+- patch: |
+    $patch : delete
+    kind: DBInstance
+    metadata:
+      name: inventory-02
+  target:
+    kind: DBInstance
+    name: inventory-02

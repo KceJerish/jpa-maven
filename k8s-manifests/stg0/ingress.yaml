@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jpa-app
+  annotations:
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:us-east-2:992382609411:regional/webacl/commerce-jpa-app-stg/03c29ce5-1251-42cc-9e82-38fdae623bc2
+    alb.ingress.kubernetes.io/load-balancer-attributes: routing.http2.enabled=false, access_logs.s3.enabled=true, access_logs.s3.bucket=ctp-access-logs-stg-ue2, access_logs.s3.prefix=jpa-app
+    external-dns.alpha.kubernetes.io/hostname: inventory.stg0-commerce.2kct.onl
+spec:
+  rules:
+    - host: stg.inventory.api.2kcoretech.online
+      http: &backend
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: inventory
+                port:
+                  name: http
+    - host: stg-inventory-api.2kcoretech.online
+      http: *backend

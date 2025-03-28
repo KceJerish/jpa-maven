@@ -1,0 +1,25 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jpa-app
+  annotations:
+    alb.ingress.kubernetes.io/wafv2-acl-arn: >-
+      arn:aws:wafv2:us-east-2:992382609411:regional/webacl/commerce-jpa-app-dev/c2e9a431-92a4-47a7-a0d1-d514ad0ac913
+    alb.ingress.kubernetes.io/load-balancer-attributes: >-
+      routing.http2.enabled=false,
+      access_logs.s3.enabled=true,
+      access_logs.s3.bucket=ctp-access-logs-dev-ue2,
+      access_logs.s3.prefix=jpa-app
+    external-dns.alpha.kubernetes.io/hostname: jpa-app.dev0-commerce-non-prod.2kct.onl
+spec:
+  rules:
+    - host: dev.jpa-app.api.2kcoretech.online
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: jpa-app
+                port:
+                  name: http

@@ -1,0 +1,52 @@
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBClusterParameterGroup
+metadata:
+  name: inventory
+spec:
+  name: inventory-prod0-aurora-postgresql14-cluster
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBParameterGroup
+metadata:
+  name: inventory
+spec:
+  name: inventory-prod0-aurora-postgresql14
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBCluster
+metadata:
+  name: inventory
+spec:
+  dbClusterIdentifier: inventory-prod0-aue2-api-2kctp
+  snapshotIdentifier: arn:aws:rds:us-east-2:689231521198:cluster-snapshot:inventory-prod2
+  kmsKeyID: arn:aws:kms:us-east-2:471112764585:key/15e1d511-4952-4e97-8f71-5e6aaa5f24fe
+  masterUsername: inventoryproduser
+  dbSubnetGroupName: prod0-private
+  serverlessV2ScalingConfiguration:
+    minCapacity: 0.5
+    maxCapacity: 60
+  vpcSecurityGroupIDs:
+    - sg-0753286aeef3c361a
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: inventory-01
+spec:
+  dbInstanceIdentifier: inventory-prod0-aue2-api-2kctp-01
+  dbClusterIdentifier: inventory-prod0-aue2-api-2kctp
+  dbInstanceClass: db.serverless
+
+---
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: inventory-02
+spec:
+  dbInstanceIdentifier: inventory-prod0-aue2-api-2kctp-02
+  dbClusterIdentifier: inventory-prod0-aue2-api-2kctp
+  dbInstanceClass: db.serverless

@@ -1,0 +1,10 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: jpa-app
+spec:
+  minAvailable: 50%
+  selector:
+    matchLabels:
+      app: jpa-app

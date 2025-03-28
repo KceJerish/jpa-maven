@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elastic-apm-jpa-app
+  labels:
+    component: apm
+data:
+  # reference: https://www.elastic.co/guide/en/apm/agent/java/current/configuration.html#configuration-dynamic
+  elasticapm.properties: |
+    enabled=true
+    recording=true
+    application_packages=com.twok.ecommerce.jpa-app

@@ -2,8 +2,9 @@ package com.example.jpamaven;
 
 import java.util.Date;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Service;
 
-// @Service
+@Service
 public class MyRunner implements CommandLineRunner {
 
     private final EmployeeRepository employeeRepository;
